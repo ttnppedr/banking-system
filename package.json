@@ -1,0 +1,12 @@
+{
+  "name": "banking-system",
+  "version": "1.0.0",
+  "description": "Simple banking system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Kevin",
+  "license": "ISC"
+}
