@@ -7,6 +7,6 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-app.listen(PORT, "127.0.0.1", () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server listening on Port ${PORT}`);
 });
