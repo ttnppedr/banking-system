@@ -10,6 +10,8 @@
   "author": "Kevin",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "@prisma/client": "^5.14.0",
+    "express": "^4.19.2",
+    "prisma": "^5.14.0"
   }
 }
