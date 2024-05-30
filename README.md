@@ -9,3 +9,28 @@
    - Start container: `docker start bank`
    - Stop container: `docker stop bank`
 5. Access the application at `http://localhost:3000`
+
+## DB Schema
+- User
+
+| column_name | data_type | is_nullable |
+|-------------|-----------|-------------|
+| id          | INTEGER   | NO          |
+| name        | TEXT      | NO          |
+| balance     | INTEGER   | NO          |
+| createdAt   | DATETIME  | NO          |
+| updatedAt   | DATETIME  | NO          |
+
+- Transaction
+
+| column_name | data_type | is_nullable | memo                               |
+|-------------|-----------|-------------|------------------------------------|
+| id          | INTEGER   | NO          |                                    |
+| type        | INTEGER   | NO          | DEPOSIT=1, WITHDRAW=2, TRANSFER=3  |
+| userId      | INTEGER   | NO          |                                    |
+| fromId      | INTEGER   | YES         | userId if type=3                   |
+| toId        | INTEGER   | YES         | userId if type=3                   |
+| amount      | INTEGER   | NO          |                                    |
+| balance     | INTEGER   | NO          |                                    |
+| createdAt   | DATETIME  | NO          |                                    |
+| updatedAt   | DATETIME  | NO          |                                    |
