@@ -11,11 +11,11 @@ describe("Test responses", () => {
     const response = badRequest(httpMocks.createResponse(), 'name', 'User already exists');
     const data = response._getJSONData();
 
-    expect(data).toHaveProperty('error');
-    expect(data['error'].length).toBe(1);
-    expect(data['error'][0]).toHaveProperty('path');
-    expect(data['error'][0]).toHaveProperty('message');
-    expect(data).toMatchObject({ error: [{ path: ['name'], message: 'User already exists' }] });
+    expect(data).toHaveProperty('errors');
+    expect(data['errors'].length).toBe(1);
+    expect(data['errors'][0]).toHaveProperty('path');
+    expect(data['errors'][0]).toHaveProperty('message');
+    expect(data).toMatchObject({ errors: [{ path: ['name'], message: 'User already exists' }] });
   });
 
   test('unprocessableEntity should return 422 status code', async () => {
@@ -73,14 +73,14 @@ describe("Test responses", () => {
     const response = unprocessableEntity(httpMocks.createResponse(), errors);
     const data = response._getJSONData();
 
-    expect(data).toHaveProperty('error');
-    expect(data['error'].length).toBe(2);
-    data['error'].forEach((error) => {
+    expect(data).toHaveProperty('errors');
+    expect(data['errors'].length).toBe(2);
+    data['errors'].forEach((error) => {
       expect(error).toHaveProperty('path');
       expect(error).toHaveProperty('message');
     });
     expect(data).toMatchObject({
-      "error": [
+      "errors": [
         {
           "path": [
             "name"
@@ -106,11 +106,11 @@ describe("Test responses", () => {
     const response = internalServerError(httpMocks.createResponse());
     const data = response._getJSONData();
 
-    expect(data).toHaveProperty('error');
-    expect(data['error'].length).toBe(1);
-    expect(data['error'][0]).toHaveProperty('path');
-    expect(data['error'][0]).toHaveProperty('message');
-    expect(data).toMatchObject({ error: [{ path: [], message: 'Something went wrong' }] });
+    expect(data).toHaveProperty('errors');
+    expect(data['errors'].length).toBe(1);
+    expect(data['errors'][0]).toHaveProperty('path');
+    expect(data['errors'][0]).toHaveProperty('message');
+    expect(data).toMatchObject({ errors: [{ path: [], message: 'Something went wrong' }] });
   });
 
   test('ok should return 200 status code', async () => {

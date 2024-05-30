@@ -1,17 +1,17 @@
 const { z } = require('zod')
 
 const badRequest = (res, column, message) => {
-  return res.status(400).json({ error: [{ path:[column], message: message }] });
+  return res.status(400).json({ errors: [{ path:[column], message: message }] });
 }
 
 const unprocessableEntity = (res, errors) =>  {
   const resContent = errors.reduce((accumulator, { path, message }) => [...accumulator, { path, message }], []);
 
-  return res.status(422).json({ error: resContent });
+  return res.status(422).json({ errors: resContent });
 }
 
 const internalServerError = (res) => {
-  return res.status(500).json({ error: [ { path:[], message: 'Something went wrong' }] });
+  return res.status(500).json({ errors: [ { path:[], message: 'Something went wrong' }] });
 }
 
 const ok = (res, data) => {
