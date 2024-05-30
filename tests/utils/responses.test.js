@@ -1,5 +1,5 @@
 const httpMocks = require('node-mocks-http');
-const { badRequest, unprocessableEntity, internalServerError } = require('../../utils/responses')
+const { badRequest, unprocessableEntity, internalServerError, ok } = require('../../utils/responses')
 
 describe("Test responses", () => {
   test('badRequest should return 400 status code', async () => {
@@ -111,5 +111,33 @@ describe("Test responses", () => {
     expect(data['error'][0]).toHaveProperty('path');
     expect(data['error'][0]).toHaveProperty('message');
     expect(data).toMatchObject({ error: [{ path: [], message: 'Something went wrong' }] });
+  });
+
+  test('ok should return 200 status code', async () => {
+    const user = {
+      "id": 1,
+      "name": "test",
+      "balance": 100,
+      "createdAt": "2024-05-30T04:48:58.422Z",
+      "updatedAt": "2024-05-30T04:48:58.422Z"
+    };
+
+    const response = ok(httpMocks.createResponse(), user);
+    expect(response.statusCode).toBe(200);
+  });
+
+  test('ok should return specific keys', async () => {
+    const user = {
+      "id": 1,
+      "name": "test",
+      "balance": 100,
+      "createdAt": "2024-05-30T04:48:58.422Z",
+      "updatedAt": "2024-05-30T04:48:58.422Z"
+    };
+
+    const response = ok(httpMocks.createResponse(), user);
+    const data = response._getJSONData();
+
+    expect(data).toHaveProperty('data');
   });
 });

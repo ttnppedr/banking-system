@@ -14,4 +14,8 @@ const internalServerError = (res) => {
   return res.status(500).json({ error: [ { path:[], message: 'Something went wrong' }] });
 }
 
-module.exports = { badRequest, unprocessableEntity, internalServerError }
+const ok = (res, data) => {
+  return res.status(200).json({ data: data });
+}
+
+module.exports = { badRequest, unprocessableEntity, internalServerError, ok }
