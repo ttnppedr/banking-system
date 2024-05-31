@@ -41,34 +41,38 @@
 - Non-200 response has `errors` key which type is array. Each element in error array has `path` and `message` key. `path` is an array type and `message` is string type.
 ### User API
 #### POST /api/users
-  - Create a user
-  - Request body: 
-  ```
-  { 
-    name: string,
-    balance: number
+- Create a user
+- Request body: 
+```
+{
+  "name": string,
+  "balance": number
+}
+```
+- Response body: 
+```
+{
+  "data": {
+    "id": number,
+    "name": string,
+    "balance": number,
+    "createdAt": string,
+    "updatedAt": string
   }
-  ```
-  - Response body: 
-  ```
-  { 
-    id: number,
-    name: string, 
-    balance: number, 
-    createdAt: string, 
-    updatedAt: string 
-  }
-  ```
+}
+```
 
 #### GET /api/users/:id
 - Get a user by id
 - Response body:
 ```
-{ 
-  id: number,
-  name: string, 
-  balance: number, 
-  createdAt: string, 
-  updatedAt: string 
+{
+  "data": {
+    "id": number,
+    "name": string,
+    "balance": number,
+    "createdAt": string,
+    "updatedAt": string
+  }
 }
 ```
