@@ -14,4 +14,4 @@ RUN npm run migrate:test
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "watch" ]
+CMD [ "node", "--watch=.", "app.js" ]
