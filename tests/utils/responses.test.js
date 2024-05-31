@@ -1,5 +1,5 @@
 const httpMocks = require('node-mocks-http');
-const { badRequest, unprocessableEntity, internalServerError, ok } = require('../../utils/responses')
+const { badRequest, unprocessableEntity, internalServerError, ok, notFound } = require('../../utils/responses')
 
 describe("Test responses", () => {
   test('badRequest should return 400 status code', async () => {
@@ -139,5 +139,21 @@ describe("Test responses", () => {
     const data = response._getJSONData();
 
     expect(data).toHaveProperty('data');
+  });
+
+  test('notFound should return 404 status code', async () => {
+    const response = notFound(httpMocks.createResponse());
+    expect(response.statusCode).toBe(404);
+  });
+
+  test('notFound should return specific keys', async () => {
+    const response = notFound(httpMocks.createResponse());
+    const data = response._getJSONData();
+
+    expect(data).toHaveProperty('errors');
+    expect(data['errors'].length).toBe(1);
+    expect(data['errors'][0]).toHaveProperty('path');
+    expect(data['errors'][0]).toHaveProperty('message');
+    expect(data).toMatchObject({ errors: [{ path: [], message: 'Not found' }] });
   });
 });

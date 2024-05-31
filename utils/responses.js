@@ -18,4 +18,8 @@ const ok = (res, data) => {
   return res.status(200).json({ data: data });
 }
 
-module.exports = { badRequest, unprocessableEntity, internalServerError, ok }
+const notFound = (res) => {
+  return res.status(404).json({ errors: [ { path:[], message: 'Not found' }] });
+}
+
+module.exports = { badRequest, unprocessableEntity, internalServerError, ok, notFound }
