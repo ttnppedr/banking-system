@@ -31,6 +31,7 @@ describe("Test user API", () => {
     expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
     expect(response.status).toStrictEqual(200);
     expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('id');
     expect(response.body.data).toHaveProperty('name');
     expect(response.body.data.name).toStrictEqual(newUserData.name);
     expect(response.body.data).toHaveProperty('balance');
