@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest"
+    "test": "npx dotenv -e .env.test -- jest",
+    "migrate:test": "npx dotenv -e .env.test -- npx prisma migrate dev",
+    "migrate:dev": "npx dotenv -e .env -- npx prisma migrate dev"
   },
   "keywords": [],
   "author": "Kevin",
