@@ -1,6 +1,6 @@
 const { z } = require('zod')
-const { badRequest, ok, unprocessableEntity, internalServerError } = require('../utils/responses')
-const { createUser, getUserByName } = require('../models/user')
+const { badRequest, ok, unprocessableEntity, internalServerError, notFound } = require('../utils/responses')
+const { createUser, getUserByName, getUserById } = require('../models/user')
 
 const store = async (req, res) => {
   try {
@@ -29,4 +29,30 @@ const store = async (req, res) => {
   }
 }
 
-module.exports = { store }
+const show = async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    z.object({
+      id: z.number().int(),
+    }).parse({id});
+
+    const user = await getUserById({ id });
+
+    if (user === null) {
+      return notFound(res);
+    }
+
+    return ok(res, user);
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof z.ZodError) {
+      return unprocessableEntity(res, error.errors)
+    }
+
+    return internalServerError(res);
+  }
+}
+
+module.exports = { store, show }
