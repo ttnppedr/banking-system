@@ -4,7 +4,8 @@
   "description": "Simple banking system",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "npx dotenv -e .env node app.js",
+    "watch": "npx dotenv -e .env node --watch=. app.js",
     "test": "npx dotenv -e .env.test -- jest",
     "migrate:test": "npx dotenv -e .env.test -- npx prisma migrate dev",
     "migrate:dev": "npx dotenv -e .env -- npx prisma migrate dev",

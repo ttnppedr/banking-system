@@ -8,6 +8,10 @@ RUN npm install
 
 COPY . .
 
+RUN npm run migrate:dev
+RUN npm run migrate:test
+
+
 EXPOSE 3000
 
-CMD [ "node", "--watch=.", "app.js" ]
+CMD [ "npm", "run", "watch" ]
