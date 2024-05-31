@@ -34,3 +34,28 @@
 | balance     | INTEGER   | NO          |                                    |
 | createdAt   | DATETIME  | NO          |                                    |
 | updatedAt   | DATETIME  | NO          |                                    |
+
+## API 
+- Use json format
+- 200 response has `data` key
+- Non-200 response has `errors` key which type is array. Each element in error array has `path` and `message` key. `path` is an array type and `message` is string type.
+### User API
+#### POST /api/users
+  - Create a user
+  - Request body: 
+  ```
+  { 
+    name: string,
+    balance: number
+  }
+  ```
+  - Response body: 
+  ```
+  { 
+    id: number,
+    name: string, 
+    balance: number, 
+    createdAt: string, 
+    updatedAt: string 
+  }
+  ```
