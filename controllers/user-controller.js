@@ -57,16 +57,16 @@ const show = async (req, res) => {
 }
 
 const index = async (req, res) => {
-  const name = req.query.name
-  const page = Number(req.query.page ?? DEFAULT_PAGE);
-  const perPage = Number(req.query.perPage ?? DEFAULT_PER_PAGE);
-
   try {
     z.object({
       name: z.optional(z.string()),
-      page: z.number().int().min(1),
-      perPage: z.number().int().min(1),
-    }).parse({ name, page, perPage });
+      page: z.optional(z.preprocess((x) => Number(x), z.number().int().min(1))),
+      perPage: z.optional(z.preprocess((x) => Number(x), z.number().int().min(1))),
+    }).parse(req.query);
+
+    const name = req.query.name
+    const page = Number(req.query.page ?? DEFAULT_PAGE);
+    const perPage = Number(req.query.perPage ?? DEFAULT_PER_PAGE);
 
     const query = { name };
     const metaCondition = { page, perPage };
