@@ -112,3 +112,26 @@
   }
 }
 ```
+
+#### PET /api/users/:id
+- Update user name
+- Request params:
+    - id: user id
+- Request body:
+```
+{
+  "name": string,
+}
+```
+- Response body:
+```
+{
+  "data": {
+    "id": number,
+    "name": string,
+    "balance": number,
+    "createdAt": string,
+    "updatedAt": string
+  }
+}
+```

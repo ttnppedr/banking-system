@@ -1,6 +1,6 @@
 const { z } = require('zod')
 const { badRequest, ok, unprocessableEntity, internalServerError, notFound, okWithMeta } = require('../utils/responses')
-const { createUser, getUserByName, getUserById, getUsersList, getUsersCount } = require('../models/user')
+const { createUser, getUserByName, getUserById, getUsersList, getUsersCount, isUserNameAvailable, updateUser } = require('../models/user')
 const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require('../models/user')
 
 const store = async (req, res) => {
@@ -84,4 +84,42 @@ const index = async (req, res) => {
   }
 }
 
-module.exports = { store, show, index }
+const update = async (req, res) => {
+  try {
+    z.object({
+      id: z.preprocess((x) => Number(x), z.number().int().min(1)),
+    }).parse(req.params);
+
+    z.object({
+      name: z.string(),
+    }).parse(req.body);
+
+    const id = Number(req.params.id);
+
+    const isNameAvailable = await isUserNameAvailable(id,{ name: req.body.name });
+
+    if (!isNameAvailable) {
+      return badRequest(res, 'name', 'User already exists');
+    }
+
+    const user = await getUserById({ id });
+
+    if (user === null) {
+      return notFound(res);
+    }
+
+    const updatedUser = await updateUser(id, { name: req.body.name });
+
+    return ok(res, updatedUser);
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof z.ZodError) {
+      return unprocessableEntity(res, error.errors)
+    }
+
+    return internalServerError(res);
+  }
+}
+
+module.exports = { store, show, index, update }

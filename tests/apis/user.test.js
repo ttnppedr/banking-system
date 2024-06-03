@@ -226,5 +226,70 @@ describe("Test user API", () => {
     expect(response.body.meta).toHaveProperty('total');
     expect(response.body.meta.total).toStrictEqual(foundUsers.length);
   });
+
+  test('update user name, PUT /api/users/:id', async () => {
+    const newUsersData = [
+      {name: 'test1', balance: 100},
+      {name: 'test2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: newUsersData });
+    const newName = 'available name';
+    const response = await request(testingServer)
+      .put(`/api/users/${newUsersData.length}`).send({name: newName});
+
+    expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(response.status).toStrictEqual(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data.id).toStrictEqual(newUsersData.length);
+    expect(response.body.data).toHaveProperty('name');
+    expect(response.body.data.name).toStrictEqual(newName);
+    expect(response.body.data).toHaveProperty('balance');
+    expect(response.body.data.balance).toStrictEqual(newUsersData[1].balance);
+    expect(response.body.data).toHaveProperty('createdAt');
+    expect(response.body.data).toHaveProperty('updatedAt');
+  });
+
+  test('update not existed user, PUT /api/users/:id', async () => {
+    const newUsersData = [
+      {name: 'test1', balance: 100},
+      {name: 'test2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: newUsersData });
+    const newName = 'available name';
+    const response = await request(testingServer)
+      .put(`/api/users/${newUsersData.length+1}`).send({name: newName});
+
+    expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(response.status).toStrictEqual(404);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual([]);
+    expect(response.body.errors[0].message).toStrictEqual('Not found');
+  });
+
+  test('update user by same name, PUT /api/users/:id', async () => {
+    const newUsersData = [
+      {name: 'test1', balance: 100},
+      {name: 'test2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: newUsersData });
+    const newName = 'test1';
+    const response = await request(testingServer)
+      .put(`/api/users/${newUsersData.length}`).send({name: newName});
+
+    expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(response.status).toStrictEqual(400);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual(['name']);
+    expect(response.body.errors[0].message).toStrictEqual('User already exists');
+  });
 });
 
