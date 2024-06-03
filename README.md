@@ -135,3 +135,41 @@
   }
 }
 ```
+
+### Transaction API
+#### POST /api/transactions
+- Transaction
+- type:
+  - DEPOSIT=1
+- Request body:
+```
+{
+  "userId": number,
+  "amount": number,
+  "type": string
+}
+```
+- Response body:
+```
+{
+  "data": {
+    "id": number,
+    "type": number,
+    "userId": number,
+    "fromId": null,
+    "toId": null,
+    "amount": number,
+    "createdAt": string,
+    "updatedAt": string,
+    "user": {
+      "id": number,
+      "name": string,
+      "balance": number,
+      "createdAt": string,
+      "updatedAt": string
+    },
+    "from": null,
+    "to": null
+  }
+}
+```
