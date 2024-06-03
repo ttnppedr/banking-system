@@ -22,16 +22,15 @@ model User {
 }
 
 model Transaction {
-  id        Int              @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   type      Int
-  user      User             @relation("Transactions", fields: [userId], references: [id])
+  user      User     @relation("Transactions", fields: [userId], references: [id])
   userId    Int
-  from      User?            @relation("OutTransfers", fields: [fromId], references: [id])
+  from      User?    @relation("OutTransfers", fields: [fromId], references: [id])
   fromId    Int?
-  to        User?            @relation("InTransfers", fields: [toId], references: [id])
+  to        User?    @relation("InTransfers", fields: [toId], references: [id])
   toId      Int?
   amount    Int
-  balance   Int
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
