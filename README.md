@@ -65,6 +65,8 @@
 
 #### GET /api/users/:id
 - Get a user by id
+- Request params:
+    - id: user id
 - Response body:
 ```
 {
