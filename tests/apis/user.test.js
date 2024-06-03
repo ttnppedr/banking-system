@@ -42,6 +42,57 @@ describe("Test user API", () => {
     expect(response.body.data).toHaveProperty('updatedAt');
   });
 
+  test('create a the same name user, POST /api/users', async () => {
+    const newUserData = {name: 'test1', balance: 100};
+    const successfulRes = await request(testingServer)
+      .post('/api/users')
+      .set('Accept', 'application/json')
+      .send(newUserData);
+    const failureRes = await request(testingServer)
+      .post('/api/users')
+      .set('Accept', 'application/json')
+      .send(newUserData);
+
+    expect(successfulRes.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(successfulRes.status).toStrictEqual(200);
+    expect(successfulRes.body).toHaveProperty('data');
+    expect(successfulRes.body.data).toHaveProperty('id');
+    expect(successfulRes.body.data).toHaveProperty('name');
+    expect(successfulRes.body.data.name).toStrictEqual(newUserData.name);
+    expect(successfulRes.body.data).toHaveProperty('balance');
+    expect(successfulRes.body.data.balance).toStrictEqual(newUserData.balance);
+    expect(successfulRes.body.data).toHaveProperty('createdAt');
+    expect(successfulRes.body.data).toHaveProperty('updatedAt');
+
+    expect(failureRes.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(failureRes.status).toStrictEqual(400);
+    expect(failureRes.body).toHaveProperty('errors');
+    failureRes.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(failureRes.body.errors[0].path).toStrictEqual(['name']);
+    expect(failureRes.body.errors[0].message).toStrictEqual('User already exists');
+  });
+
+  test('create a user by invalid balance, POST /api/users', async () => {
+    const newUserData = {name: 'test1', balance: -100};
+    const response = await request(testingServer)
+      .post('/api/users')
+      .set('Accept', 'application/json')
+      .send(newUserData);
+
+    expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(response.status).toStrictEqual(422);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual(['balance']);
+    expect(response.body.errors[0].message).toStrictEqual('Number must be greater than or equal to 0');
+  });
+
   test('get a user by id, GET /api/users/:id', async () => {
     const newUserData = {name: 'test1', balance: 100};
     const newUser = await createUser(newUserData);
@@ -59,6 +110,23 @@ describe("Test user API", () => {
     expect(response.body.data.balance).toStrictEqual(newUser.balance);
     expect(response.body.data).toHaveProperty('createdAt');
     expect(response.body.data).toHaveProperty('updatedAt');
+  });
+
+  test('get a not exist user by id, GET /api/users/:id', async () => {
+    const newUserData = {name: 'test1', balance: 100};
+    await createUser(newUserData);
+    const response = await request(testingServer)
+      .get(`/api/users/99`);
+
+    expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
+    expect(response.status).toStrictEqual(404);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual([]);
+    expect(response.body.errors[0].message).toStrictEqual('Not found');
   });
 
   test('get users list, GET /api/users', async () => {
