@@ -1,4 +1,5 @@
 const prismaClient = require('../prisma/client')
+const InsufficientBalanceError = require('../errors/InsufficientBalanceError')
 
 const TYPE = {
   DEPOSIT: 1,
@@ -36,4 +37,27 @@ const getTransactionById = async ({ id }) => {
   });
 };
 
-module.exports = { deposit, getTransactionById, TYPE };
+const withdraw = async ({ userId, amount }) => {
+  return await prismaClient.$transaction(async (tx) => {
+    const user = await tx.user.update({
+      where: { id: userId },
+      data: {
+        balance: { decrement: amount }
+      }
+    });
+
+    if (user.balance < 0) {
+      throw new InsufficientBalanceError();
+    }
+
+    return await tx.transaction.create({
+      data: {
+        type: TYPE.WITHDRAW,
+        amount,
+        userId,
+      },
+    });
+  });
+};
+
+module.exports = { deposit, getTransactionById, withdraw, TYPE };
