@@ -25,4 +25,15 @@ const deposit = ({ userId, amount }) => {
   });
 };
 
-module.exports = { deposit, TYPE };
+const getTransactionById = async ({ id }) => {
+  return await prismaClient.transaction.findUnique({
+    where: { id },
+    include: {
+      user: true,
+      from: true,
+      to: true,
+    },
+  });
+};
+
+module.exports = { deposit, getTransactionById, TYPE };
