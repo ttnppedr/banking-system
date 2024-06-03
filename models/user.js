@@ -48,4 +48,17 @@ const updateUser = async (id, data = {}) => {
   });
 };
 
-module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount, updateUser, DEFAULT_PAGE, DEFAULT_PER_PAGE };
+const isUserNameAvailable = async (id, { name }) => {
+  const user = await prismaClient.user.findFirst({
+    where: {
+      name,
+      NOT: {
+        id
+      }
+    }
+  });
+
+  return user === null;
+};
+
+module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount, updateUser, isUserNameAvailable, DEFAULT_PAGE, DEFAULT_PER_PAGE };

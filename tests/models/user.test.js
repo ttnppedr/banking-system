@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const { createUser, getUserByName, getUserById, getUsersList, getUsersCount, updateUser } = require('../../models/user')
+const { createUser, getUserByName, getUserById, getUsersList, getUsersCount, updateUser, isUserNameAvailable } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
 
 beforeAll(() => {
@@ -184,6 +184,30 @@ describe('Test user model', () => {
     expect(updatedUser.balance).toStrictEqual(originUser.balance);
     expect(updatedUser.createdAt).toStrictEqual(originUser.createdAt);
     expect(updatedUser.updatedAt !== originUser.updatedAt).toBeTruthy();
+  });
+
+  test('name for updating user is available', async () => {
+    const usersData = [
+      {name: 'user1', balance: 100},
+      {name: 'user2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: usersData });
+
+    const available = await isUserNameAvailable(2, {name: 'not-existed'});
+
+    expect(available).toBeTruthy();
+  });
+
+  test('name for updating user is unavailable', async () => {
+    const usersData = [
+      {name: 'user1', balance: 100},
+      {name: 'user2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: usersData });
+
+    const available = await isUserNameAvailable(2, {name: 'user1'});
+
+    expect(available).toBeFalsy();
   });
 });
 
