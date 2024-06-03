@@ -1,6 +1,8 @@
 const { PrismaClient } = require('@prisma/client')
 
 const prismaClient = require('../prisma/client')
+const DEFAULT_PER_PAGE = 10;
+const DEFAULT_PAGE = 1;
 
 const createUser = async ({ name, balance }) => {
   return await prismaClient.user.create({
@@ -23,4 +25,14 @@ const getUserById = async ({ id }) => {
   })
 };
 
-module.exports = { createUser, getUserByName, getUserById }
+const getUsersList = async (query = {}, metaCondition = { perPage: DEFAULT_PER_PAGE, page: DEFAULT_PAGE }) => {
+  const { perPage, page } = metaCondition;
+
+  return await prismaClient.user.findMany({
+    take: perPage,
+    skip: (page - 1) * perPage,
+    where: query
+  });
+};
+
+module.exports = { createUser, getUserByName, getUserById, getUsersList }
