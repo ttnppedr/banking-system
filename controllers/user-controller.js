@@ -31,14 +31,12 @@ const store = async (req, res) => {
 }
 
 const show = async (req, res) => {
-  const id = Number(req.params.id);
-
   try {
     z.object({
-      id: z.number().int(),
-    }).parse({id});
+      id: z.preprocess((x) => Number(x), z.number().int().min(1)),
+    }).parse(req.params);
 
-    const user = await getUserById({ id });
+    const user = await getUserById({ id: Number(req.params.id) });
 
     if (user === null) {
       return notFound(res);
