@@ -1,5 +1,3 @@
-const { PrismaClient } = require('@prisma/client')
-
 const prismaClient = require('../prisma/client')
 const DEFAULT_PER_PAGE = 10;
 const DEFAULT_PAGE = 1;
