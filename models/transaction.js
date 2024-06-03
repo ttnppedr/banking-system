@@ -60,4 +60,46 @@ const withdraw = async ({ userId, amount }) => {
   });
 };
 
-module.exports = { deposit, getTransactionById, withdraw, TYPE };
+const transfer = async ({ userId, toId, amount }) => {
+  return await prismaClient.$transaction(async (tx) => {
+    const user = await tx.user.update({
+      where: { id: userId },
+      data: {
+        balance: { decrement: amount }
+      }
+    });
+
+    if (user.balance < 0) {
+      throw new InsufficientBalanceError();
+    }
+
+    await tx.user.update({
+      where: { id: toId },
+      data: {
+        balance: { increment: amount }
+      }
+    });
+
+    await tx.transaction.create({
+      data: {
+        type: TYPE.TRANSFER,
+        amount,
+        userId: toId,
+        fromId: userId,
+        toId,
+      },
+    });
+
+    return await tx.transaction.create({
+      data: {
+        type: TYPE.TRANSFER,
+        amount,
+        userId,
+        fromId: userId,
+        toId,
+      },
+    });
+  });
+};
+
+module.exports = { deposit, getTransactionById, withdraw, transfer, TYPE };

@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 const { getUserById } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
-const { deposit, getTransactionById, withdraw } = require('../../models/transaction')
+const { deposit, getTransactionById, withdraw, transfer } = require('../../models/transaction')
 const { TYPE } = require('../../models/transaction')
 const InsufficientBalanceError = require('../../errors/InsufficientBalanceError')
 
@@ -85,5 +85,47 @@ describe('Test transaction model', () => {
     expect(transaction).toHaveProperty('updatedAt');
 
     expect(user).toHaveProperty('balance', originBalance - amount);
+  });
+
+  test('insufficient balance transfer', async () => {
+    const user = await getUserById({id: 1});
+    const toUser = await getUserById({id: 2});
+    const transferData = {userId: user.id, toId:toUser.id, amount: user.balance + 1};
+
+    expect(async () => await transfer(transferData)).rejects.toThrowError(InsufficientBalanceError);
+  });
+
+  test('transfer', async () => {
+    let user = await getUserById({id: 1});
+    let toUser = await getUserById({id: 2});
+
+    const originBalance = user.balance;
+    const originToBalance = toUser.balance;
+    const amount = 100;
+    const transaction = await transfer({userId: user.id, toId: toUser.id, amount});
+    const toTransaction = await getTransactionById({id: 1});
+    user = await getUserById({id: 1});
+    toUser = await getUserById({id: 2});
+
+    expect(toTransaction).toHaveProperty('id', 1);
+    expect(toTransaction).toHaveProperty('type', TYPE.TRANSFER);
+    expect(toTransaction).toHaveProperty('userId', toUser.id);
+    expect(toTransaction).toHaveProperty('amount', amount);
+    expect(toTransaction).toHaveProperty('fromId', user.id);
+    expect(toTransaction).toHaveProperty('toId', toUser.id);
+    expect(toTransaction).toHaveProperty('createdAt');
+    expect(toTransaction).toHaveProperty('updatedAt');
+
+    expect(transaction).toHaveProperty('id', 2);
+    expect(transaction).toHaveProperty('type', TYPE.TRANSFER);
+    expect(transaction).toHaveProperty('userId', user.id);
+    expect(transaction).toHaveProperty('amount', amount);
+    expect(transaction).toHaveProperty('fromId', user.id);
+    expect(transaction).toHaveProperty('toId', toUser.id);
+    expect(transaction).toHaveProperty('createdAt');
+    expect(transaction).toHaveProperty('updatedAt');
+
+    expect(user.balance).toStrictEqual(originBalance - amount);
+    expect(toUser.balance).toStrictEqual(originToBalance + amount);
   });
 });
