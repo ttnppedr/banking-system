@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 const { getUserById } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
-const { deposit, getTransactionById, withdraw, transfer } = require('../../models/transaction')
+const { deposit, getTransactionById, withdraw, transfer, getTypeLabel, TYPE_LABEL } = require('../../models/transaction')
 const { TYPE } = require('../../models/transaction')
 const InsufficientBalanceError = require('../../errors/InsufficientBalanceError')
 
@@ -127,5 +127,11 @@ describe('Test transaction model', () => {
 
     expect(user.balance).toStrictEqual(originBalance - amount);
     expect(toUser.balance).toStrictEqual(originToBalance + amount);
+  });
+
+  test('get type label', () => {
+    Object.values(TYPE).forEach((value) => {
+      expect(getTypeLabel(value)).toStrictEqual(TYPE_LABEL[value]);
+    });
   });
 });

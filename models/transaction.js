@@ -7,6 +7,14 @@ const TYPE = {
   TRANSFER: 3,
 };
 
+const TYPE_LABEL = {
+  1: 'DEPOSIT',
+  2: 'WITHDRAW',
+  3: 'TRANSFER',
+};
+
+const getTypeLabel = (type) => TYPE_LABEL[type];
+
 const deposit = async ({ userId, amount }) => {
   return await prismaClient.$transaction(async (tx) => {
     await tx.user.update({
@@ -102,4 +110,4 @@ const transfer = async ({ userId, toId, amount }) => {
   });
 };
 
-module.exports = { deposit, getTransactionById, withdraw, transfer, TYPE };
+module.exports = { deposit, getTransactionById, withdraw, transfer, getTypeLabel, TYPE, TYPE_LABEL };
