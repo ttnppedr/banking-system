@@ -4,5 +4,6 @@ const UserController = require('../../controllers/user-controller')
 
 Router.post('/', UserController.store);
 Router.get('/:id', UserController.show);
+Router.get('/', UserController.index);
 
 module.exports = Router

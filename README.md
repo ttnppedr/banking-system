@@ -38,6 +38,7 @@
 ## API 
 - Use json format
 - 200 response has `data` key
+- 200 response for data list has `meta` key, which contains `total`, `perPage`, `page` keys. `total` is the total number of data, `perPage` is the number of data per page, `page` is the current page number.
 - Non-200 response has `errors` key which type is array. Each element in error array has `path` and `message` key. `path` is an array type and `message` is string type.
 ### User API
 #### POST /api/users
@@ -73,6 +74,39 @@
     "balance": number,
     "createdAt": string,
     "updatedAt": string
+  }
+}
+```
+
+#### GET /api/users?perPage=:perPage&page=:page&name=:name
+- Get users list
+- Request query:
+  - perPage: number of data per page
+  - page: current page number
+  - name: filter by name
+- Response body:
+```
+{
+  "data": [
+     {
+       "id": number,
+       "name": string,
+       "balance": number,
+       "createdAt": string,
+       "updatedAt": string
+     },
+     {
+       "id": number,
+       "name": string,
+       "balance": number,
+       "createdAt": string,
+       "updatedAt": string
+     }
+  ],
+  "meta": {
+    "total": number,
+    "perPage": number,
+    "page": number
   }
 }
 ```

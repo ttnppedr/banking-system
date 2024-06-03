@@ -1,6 +1,7 @@
 const { z } = require('zod')
-const { badRequest, ok, unprocessableEntity, internalServerError, notFound } = require('../utils/responses')
-const { createUser, getUserByName, getUserById } = require('../models/user')
+const { badRequest, ok, unprocessableEntity, internalServerError, notFound, okWithMeta } = require('../utils/responses')
+const { createUser, getUserByName, getUserById, getUsersList, getUsersCount } = require('../models/user')
+const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require('../models/user')
 
 const store = async (req, res) => {
   try {
@@ -55,4 +56,34 @@ const show = async (req, res) => {
   }
 }
 
-module.exports = { store, show }
+const index = async (req, res) => {
+  const name = req.query.name
+  const page = Number(req.query.page ?? DEFAULT_PAGE);
+  const perPage = Number(req.query.perPage ?? DEFAULT_PER_PAGE);
+
+  try {
+    z.object({
+      name: z.optional(z.string()),
+      page: z.number().int().min(1),
+      perPage: z.number().int().min(1),
+    }).parse({ name, page, perPage });
+
+    const query = { name };
+    const metaCondition = { page, perPage };
+
+    const usersData = await getUsersList(query, metaCondition);
+    const usersCount = await getUsersCount(query);
+
+    return okWithMeta(res, usersData, { page, perPage, total: usersCount });
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof z.ZodError) {
+      return unprocessableEntity(res, error.errors)
+    }
+
+    return internalServerError(res);
+  }
+}
+
+module.exports = { store, show, index }

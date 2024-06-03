@@ -41,4 +41,4 @@ const getUsersCount = async (query = {}) => {
   });
 };
 
-module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount }
+module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount, DEFAULT_PAGE, DEFAULT_PER_PAGE };
