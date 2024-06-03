@@ -35,4 +35,10 @@ const getUsersList = async (query = {}, metaCondition = { perPage: DEFAULT_PER_P
   });
 };
 
-module.exports = { createUser, getUserByName, getUserById, getUsersList }
+const getUsersCount = async (query = {}) => {
+  return await prismaClient.user.count({
+    where: query
+  });
+};
+
+module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount }

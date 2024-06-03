@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const { createUser, getUserByName, getUserById, getUsersList } = require('../../models/user')
+const { createUser, getUserByName, getUserById, getUsersList, getUsersCount } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
 
 beforeAll(() => {
@@ -142,6 +142,30 @@ describe('Test user model', () => {
     expect(users[0].balance).toStrictEqual(usersData[0].balance);
     expect(users[0]).toHaveProperty('createdAt');
     expect(users[0]).toHaveProperty('updatedAt');
+  });
+
+  test('get users count', async () => {
+    const usersData = [
+      {name: 'user1', balance: 100},
+      {name: 'user2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: usersData });
+
+    const usersCount = await getUsersCount();
+
+    expect(usersCount).toStrictEqual(usersData.length);
+  });
+
+  test('get users count by query name', async () => {
+    const usersData = [
+      {name: 'user1', balance: 100},
+      {name: 'user2', balance: 200},
+    ];
+    await prismaClient.user.createMany({ data: usersData });
+
+    const usersCount = await getUsersCount({name: usersData[0].name},);
+
+    expect(usersCount).toStrictEqual(1);
   });
 });
 
