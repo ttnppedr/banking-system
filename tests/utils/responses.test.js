@@ -1,5 +1,5 @@
 const httpMocks = require('node-mocks-http');
-const { badRequest, unprocessableEntity, internalServerError, ok, notFound } = require('../../utils/responses')
+const { badRequest, unprocessableEntity, internalServerError, ok, notFound, okWithMeta } = require('../../utils/responses')
 
 describe("Test responses", () => {
   test('badRequest should return 400 status code', async () => {
@@ -155,5 +155,51 @@ describe("Test responses", () => {
     expect(data['errors'][0]).toHaveProperty('path');
     expect(data['errors'][0]).toHaveProperty('message');
     expect(data).toMatchObject({ errors: [{ path: [], message: 'Not found' }] });
+  });
+
+  test('okWithMeta should return 404 status code', async () => {
+    const response = okWithMeta(httpMocks.createResponse(), {}, {});
+    expect(response.statusCode).toBe(200);
+  });
+
+  test('okWithMeta should return specific keys', async () => {
+    const users = [
+      {
+        "id": 1,
+        "name": "user1",
+        "balance": 100,
+        "createdAt": "2024-05-30T04:48:58.422Z",
+        "updatedAt": "2024-05-30T04:48:58.422Z"
+      },
+      {
+        "id": 2,
+        "name": "user2",
+        "balance": 200,
+        "createdAt": "2024-05-30T04:48:58.422Z",
+        "updatedAt": "2024-05-30T04:48:58.422Z"
+      },
+    ];
+    const meta = {
+      "perPage": 10,
+      "page": 1,
+      "total": 20
+    };
+
+    const response = okWithMeta(httpMocks.createResponse(), users, meta);
+    const res = response._getJSONData();
+
+    expect(res).toHaveProperty('data');
+    expect(res).toHaveProperty('meta');
+    res.data.forEach((user) => {
+      expect(user).toHaveProperty('id');
+      expect(user).toHaveProperty('name');
+      expect(user).toHaveProperty('balance');
+      expect(user).toHaveProperty('createdAt');
+      expect(user).toHaveProperty('updatedAt');
+    });
+    expect(res.meta).toHaveProperty('perPage');
+    expect(res.meta).toHaveProperty('page');
+    expect(res.meta).toHaveProperty('total');
+    expect(res).toMatchObject({ data: users, meta: meta});
   });
 });
