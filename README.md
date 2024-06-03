@@ -113,7 +113,7 @@
 }
 ```
 
-#### PET /api/users/:id
+#### PUT /api/users/:id
 - Update user name
 - Request params:
     - id: user id
