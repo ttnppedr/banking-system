@@ -3,7 +3,7 @@ const request = require('supertest');
 const { startServer, stopServer } = require('../../server')
 const { prepareTestingApp } = require('../libs/server')
 const prismaClient = require('../../prisma/client')
-const { TYPE, deposit } = require('../../models/transaction')
+const { TYPE, deposit, withdraw } = require('../../models/transaction')
 
 const app = prepareTestingApp();
 let testingServer;
@@ -136,6 +136,90 @@ describe("Test transaction API", () => {
     const response = await request(testingServer)
       .post('/api/transactions')
       .send(withdrawData);
+
+    expect(response.status).toStrictEqual(400);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual(['amount']);
+    expect(response.body.errors[0].message).toContain('Insufficient balance');
+  });
+
+  test('transfer 100 from user, POST /api/transactions', async () => {
+    const transferData = {userId: 1, amount: 100, toId:2, type: 'TRANSFER'};
+    const response = await request(testingServer)
+      .post('/api/transactions')
+      .send(transferData);
+
+    expect(response.status).toStrictEqual(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data).toHaveProperty('type', TYPE.TRANSFER);
+    expect(response.body.data).toHaveProperty('type', TYPE[transferData.type]);
+    expect(response.body.data).toHaveProperty('fromId', transferData.userId);
+    expect(response.body.data).toHaveProperty('toId', transferData.toId);
+    expect(response.body.data).toHaveProperty('amount', transferData.amount);
+    expect(response.body.data).toHaveProperty('user');
+    expect(response.body.data.user).toHaveProperty('id', transferData.userId);
+    expect(response.body.data.user).toHaveProperty('name', usersData[0].name);
+    expect(response.body.data.user).toHaveProperty('balance', usersData[0].balance - transferData.amount);
+    expect(response.body.data.user).toHaveProperty('createdAt');
+    expect(response.body.data.user).toHaveProperty('updatedAt');
+    expect(response.body.data).toHaveProperty('fromId');
+    expect(response.body.data.from).toHaveProperty('id', transferData.userId);
+    expect(response.body.data.from).toHaveProperty('name', usersData[0].name);
+    expect(response.body.data.from).toHaveProperty('balance', usersData[0].balance - transferData.amount);
+    expect(response.body.data.from).toHaveProperty('createdAt');
+    expect(response.body.data.from).toHaveProperty('updatedAt');
+    expect(response.body.data).toHaveProperty('toId');
+    expect(response.body.data.to).toHaveProperty('id', transferData.toId);
+    expect(response.body.data.to).toHaveProperty('name', usersData[1].name);
+    expect(response.body.data.to).toHaveProperty('balance', usersData[1].balance + transferData.amount);
+    expect(response.body.data.to).toHaveProperty('createdAt');
+    expect(response.body.data.to).toHaveProperty('updatedAt');
+    expect(response.body.data).toHaveProperty('createdAt');
+    expect(response.body.data).toHaveProperty('updatedAt');
+  });
+
+  test('transfer missing toId, POST /api/transactions', async () => {
+    const transferData = {userId: 1, amount: 100, type: 'TRANSFER'};
+    const response = await request(testingServer)
+      .post('/api/transactions')
+      .send(transferData);
+
+    expect(response.status).toStrictEqual(422);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual(['toId']);
+    expect(response.body.errors[0].message).toContain('toId is required for TRANSFER type');
+  });
+
+  test('transfer to not exist user, POST /api/transactions', async () => {
+    const transferData = {userId: 1, amount: 100, toId: 3, type: 'TRANSFER'};
+    const response = await request(testingServer)
+      .post('/api/transactions')
+      .send(transferData);
+
+    expect(response.status).toStrictEqual(400);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual(['toId']);
+    expect(response.body.errors[0].message).toContain('User not found');
+  });
+
+  test('transfer insufficient balance, POST /api/transactions', async () => {
+    const transferData = {userId: 1, amount: 101, toId: 2, type: 'TRANSFER'};
+    const response = await request(testingServer)
+      .post('/api/transactions')
+      .send(transferData);
 
     expect(response.status).toStrictEqual(400);
     expect(response.body).toHaveProperty('errors');

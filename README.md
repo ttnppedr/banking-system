@@ -142,6 +142,7 @@
 - type:
   - DEPOSIT=1
   - WITHDRAW=1
+  - TRANSFER=3
 - Request body:
 ```
 {
@@ -150,7 +151,7 @@
   "type": string
 }
 ```
-- Response body:
+- Response body: (DEPOSIT, WITHDRAW)
 ```
 {
   "data": {
@@ -171,6 +172,43 @@
     },
     "from": null,
     "to": null
+  }
+}
+```
+
+- Response body: (TRANSFER)
+```
+{
+  "data": {
+    "id": number,
+    "type": number,
+    "userId": number,
+    "fromId": null,
+    "toId": null,
+    "amount": number,
+    "createdAt": string,
+    "updatedAt": string,
+    "user": {
+      "id": number,
+      "name": string,
+      "balance": number,
+      "createdAt": string,
+      "updatedAt": string
+    },
+    "from": {
+      "id": number,
+      "name": string,
+      "balance": number,
+      "createdAt": string,
+      "updatedAt": string
+    },
+    "to": {
+      "id": number,
+      "name": string,
+      "balance": number,
+      "createdAt": string,
+      "updatedAt": string
+    },
   }
 }
 ```

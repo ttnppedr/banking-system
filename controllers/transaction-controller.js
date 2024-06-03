@@ -1,6 +1,6 @@
 const { z } = require('zod')
 const { ok, internalServerError, notFound, unprocessableEntity, badRequest } = require('../utils/responses')
-const { deposit, getTransactionById, withdraw } = require('../models/transaction')
+const { deposit, getTransactionById, withdraw, transfer, getTypeLabel } = require('../models/transaction')
 const { TYPE } = require('../models/transaction')
 const { getUserById } = require('../models/user')
 const InsufficientBalanceError = require('../errors/InsufficientBalanceError')
@@ -10,8 +10,14 @@ const store = async (req, res) => {
     z.object({
       userId: z.number(),
       amount: z.number().int().min(1),
-      type: z.enum(Object.keys(TYPE))
-    }).parse(req.body);
+      type: z.enum(Object.keys(TYPE)),
+      toId: z.optional(z.number())
+    })
+    .refine((data) => !(data.type === getTypeLabel(TYPE.TRANSFER) && !data.toId), {
+      path: ['toId'],
+      message: 'toId is required for TRANSFER type'
+    })
+    .parse(req.body);
 
     const userId = Number(req.body.userId);
 
@@ -29,6 +35,15 @@ const store = async (req, res) => {
         break;
       case TYPE.WITHDRAW:
         transaction = await withdraw({ userId, amount: req.body.amount });
+        break;
+      case TYPE.TRANSFER:
+        const toId = Number(req.body.toId);
+        const toUser = await getUserById({ id: toId });
+        if (toUser === null) {
+          return badRequest(res, 'toId', 'User not found');
+        }
+
+        transaction = await transfer({ userId, toId, amount: req.body.amount });
         break;
     }
 
