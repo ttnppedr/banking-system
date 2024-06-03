@@ -37,6 +37,7 @@ describe("Test transaction API", () => {
     expect(response.status).toStrictEqual(200);
     expect(response.body).toHaveProperty('data');
     expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data).toHaveProperty('type', TYPE[depositData.type]);
     expect(response.body.data).toHaveProperty('userId', depositData.userId);
     expect(response.body.data).toHaveProperty('fromId', null);
     expect(response.body.data).toHaveProperty('toId', null);
