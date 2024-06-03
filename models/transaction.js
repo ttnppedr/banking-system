@@ -7,8 +7,8 @@ const TYPE = {
   TRANSFER: 3,
 };
 
-const deposit = ({ userId, amount }) => {
-  return prismaClient.$transaction(async (tx) => {
+const deposit = async ({ userId, amount }) => {
+  return await prismaClient.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: userId },
       data: {
