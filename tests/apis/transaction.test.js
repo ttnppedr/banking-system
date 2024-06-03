@@ -61,14 +61,14 @@ describe("Test transaction API", () => {
       .send(depositData);
 
     expect(response.headers["Content-Type"]).toString('application/json; charset=utf-8');
-    expect(response.status).toStrictEqual(404);
+    expect(response.status).toStrictEqual(400);
     expect(response.body).toHaveProperty('errors');
     response.body.errors.forEach(error => {
       expect(error).toHaveProperty('path');
       expect(error).toHaveProperty('message');
     });
-    expect(response.body.errors[0].path).toStrictEqual([]);
-    expect(response.body.errors[0].message).toStrictEqual('Not found');
+    expect(response.body.errors[0].path).toStrictEqual(['userId']);
+    expect(response.body.errors[0].message).toStrictEqual('User not found');
   });
 
   test('deposit 0 to user, POST /api/transactions', async () => {

@@ -18,7 +18,7 @@ const store = async (req, res) => {
     const user = await getUserById({ id: userId });
 
     if (user === null) {
-      return notFound(res);
+      return badRequest(res, 'userId', 'User not found');
     }
 
     let transaction;
