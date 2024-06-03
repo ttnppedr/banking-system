@@ -103,4 +103,46 @@ describe("Test transaction API", () => {
     expect(response.body.errors[0].path).toStrictEqual(['type']);
     expect(response.body.errors[0].message).toContain('Invalid enum value.');
   });
+
+  test('withdraw 100 from user, POST /api/transactions', async () => {
+    const withdrawData = {userId: 1, amount: 100, type: 'WITHDRAW'};
+    const response = await request(testingServer)
+      .post('/api/transactions')
+      .send(withdrawData);
+
+    expect(response.status).toStrictEqual(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data).toHaveProperty('type', TYPE.WITHDRAW);
+    expect(response.body.data).toHaveProperty('type', TYPE[withdrawData.type]);
+    expect(response.body.data).toHaveProperty('fromId', null);
+    expect(response.body.data).toHaveProperty('toId', null);
+    expect(response.body.data).toHaveProperty('amount', withdrawData.amount);
+    expect(response.body.data).toHaveProperty('user');
+    expect(response.body.data.user).toHaveProperty('id', withdrawData.userId);
+    expect(response.body.data.user).toHaveProperty('name', usersData[0].name);
+    expect(response.body.data.user).toHaveProperty('balance', usersData[0].balance - withdrawData.amount);
+    expect(response.body.data.user).toHaveProperty('createdAt');
+    expect(response.body.data.user).toHaveProperty('updatedAt');
+    expect(response.body.data).toHaveProperty('from', null);
+    expect(response.body.data).toHaveProperty('to', null);
+    expect(response.body.data).toHaveProperty('createdAt');
+    expect(response.body.data).toHaveProperty('updatedAt');
+  });
+
+  test('withdraw insufficient balance from user, POST /api/transactions', async () => {
+    const withdrawData = {userId: 1, amount: 101, type: 'WITHDRAW'};
+    const response = await request(testingServer)
+      .post('/api/transactions')
+      .send(withdrawData);
+
+    expect(response.status).toStrictEqual(400);
+    expect(response.body).toHaveProperty('errors');
+    response.body.errors.forEach(error => {
+      expect(error).toHaveProperty('path');
+      expect(error).toHaveProperty('message');
+    });
+    expect(response.body.errors[0].path).toStrictEqual(['amount']);
+    expect(response.body.errors[0].message).toContain('Insufficient balance');
+  });
 });

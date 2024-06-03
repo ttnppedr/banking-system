@@ -141,6 +141,7 @@
 - Transaction
 - type:
   - DEPOSIT=1
+  - WITHDRAW=1
 - Request body:
 ```
 {

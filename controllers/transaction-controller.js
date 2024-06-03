@@ -1,8 +1,9 @@
 const { z } = require('zod')
-const { ok, internalServerError, notFound, unprocessableEntity } = require('../utils/responses')
-const { deposit, getTransactionById } = require('../models/transaction')
+const { ok, internalServerError, notFound, unprocessableEntity, badRequest } = require('../utils/responses')
+const { deposit, getTransactionById, withdraw } = require('../models/transaction')
 const { TYPE } = require('../models/transaction')
 const { getUserById } = require('../models/user')
+const InsufficientBalanceError = require('../errors/InsufficientBalanceError')
 
 const store = async (req, res) => {
   try {
@@ -26,6 +27,9 @@ const store = async (req, res) => {
       case TYPE.DEPOSIT:
         transaction = await deposit({ userId, amount: req.body.amount });
         break;
+      case TYPE.WITHDRAW:
+        transaction = await withdraw({ userId, amount: req.body.amount });
+        break;
     }
 
     transaction = await getTransactionById({ id: transaction.id });
@@ -36,6 +40,10 @@ const store = async (req, res) => {
 
     if (error instanceof z.ZodError) {
       return unprocessableEntity(res, error.errors)
+    }
+
+    if (error instanceof InsufficientBalanceError) {
+      return badRequest(res, 'amount', error.message)
     }
 
     return internalServerError(res, error)
