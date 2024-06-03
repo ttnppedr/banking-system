@@ -41,4 +41,11 @@ const getUsersCount = async (query = {}) => {
   });
 };
 
-module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount, DEFAULT_PAGE, DEFAULT_PER_PAGE };
+const updateUser = async (id, data = {}) => {
+  return await prismaClient.user.update({
+    where: { id },
+    data
+  });
+};
+
+module.exports = { createUser, getUserByName, getUserById, getUsersList, getUsersCount, updateUser, DEFAULT_PAGE, DEFAULT_PER_PAGE };

@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-const { createUser, getUserByName, getUserById, getUsersList, getUsersCount } = require('../../models/user')
+const { createUser, getUserByName, getUserById, getUsersList, getUsersCount, updateUser } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
 
 beforeAll(() => {
@@ -166,6 +166,24 @@ describe('Test user model', () => {
     const usersCount = await getUsersCount({name: usersData[0].name},);
 
     expect(usersCount).toStrictEqual(1);
+  });
+
+  test('update user name', async () => {
+    const originUser = await prismaClient.user.create({
+      data:{
+        name: 'user1',
+        balance: 100
+      }
+    });
+
+    const modifiedData = {name: 'new name'};
+    const updatedUser  = await updateUser(originUser.id , {name: modifiedData.name},);
+
+    expect(updatedUser.id).toStrictEqual(originUser.id);
+    expect(updatedUser.name).toStrictEqual(modifiedData.name);
+    expect(updatedUser.balance).toStrictEqual(originUser.balance);
+    expect(updatedUser.createdAt).toStrictEqual(originUser.createdAt);
+    expect(updatedUser.updatedAt !== originUser.updatedAt).toBeTruthy();
   });
 });
 
