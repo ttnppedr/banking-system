@@ -221,9 +221,9 @@ docker stop bank
 #### POST /api/transactions
 - Transaction
 - type:
-  - DEPOSIT=1
-  - WITHDRAW=1
-  - TRANSFER=3
+  - DEPOSIT
+  - WITHDRAW
+  - TRANSFER
 - Request body:
 ```
 {
@@ -238,7 +238,7 @@ docker stop bank
 {
   "data": {
     "id": number,
-    "type": number,
+    "type": number, (type=1 for DEPOSIT, type=2 for WITHDRAW)
     "userId": number,
     "fromId": null,
     "toId": null,
@@ -263,7 +263,7 @@ docker stop bank
 {
   "data": {
     "id": number,
-    "type": number,
+    "type": number, (type=3 for TRANSFER)
     "userId": number,
     "fromId": null,
     "toId": null,
@@ -309,7 +309,7 @@ docker stop bank
   "data": [
     {
       "id": number,
-      "type": number,
+      "type": number, (type=1 for DEPOSIT, type=2 for WITHDRAW, type=3 for TRANSFER)
       "userId": number,
       "fromId": null,
       "toId": null,
@@ -328,7 +328,7 @@ docker stop bank
     }, 
     {
       "id": number,
-      "type": number,
+      "type": number, (type=1 for DEPOSIT, type=2 for WITHDRAW, type=3 for TRANSFER)
       "userId": number,
       "fromId": null,
       "toId": null,
