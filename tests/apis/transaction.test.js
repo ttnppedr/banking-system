@@ -3,7 +3,7 @@ const request = require('supertest');
 const { startServer, stopServer } = require('../../server')
 const { prepareTestingApp } = require('../libs/server')
 const prismaClient = require('../../prisma/client')
-const { TYPE, deposit, withdraw } = require('../../models/transaction')
+const { TYPE, deposit, withdraw, DEFAULT_PAGE, DEFAULT_PER_PAGE } = require('../../models/transaction')
 
 const app = prepareTestingApp();
 let testingServer;
@@ -229,5 +229,87 @@ describe("Test transaction API", () => {
     });
     expect(response.body.errors[0].path).toStrictEqual(['amount']);
     expect(response.body.errors[0].message).toContain('Insufficient balance');
+  });
+
+  test('get transactions list, GET /api/transactions', async () => {
+    const userId = 1;
+    const anotherUserId = 2;
+    const transactionsData = [
+      {type: TYPE.TRANSFER, amount: 100, userId: userId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 100, userId: anotherUserId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 200, userId: userId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 200, userId: anotherUserId, fromId: userId, toId: anotherUserId},
+    ];
+    const userTransactions = transactionsData.filter(transaction => transaction.userId === userId);
+
+    await prismaClient.transaction.createMany({ data: transactionsData });
+
+    const queryData = {userId};
+    const response = await request(testingServer)
+      .get('/api/transactions')
+      .query(queryData);
+
+    expect(response.status).toStrictEqual(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveLength(userTransactions.length);
+    const transactions = response.body.data;
+    for (let i = 0; i < transactions.length - 1 ; i++) {
+      expect(transactions[i]).toHaveProperty('id');
+      expect(transactions[i]).toHaveProperty('userId', userId);
+      expect(transactions[i]).toHaveProperty('type', TYPE.TRANSFER);
+      expect(transactions[i]).toHaveProperty('amount');
+      expect(transactions[i]).toHaveProperty('user');
+      expect(transactions[i].user).toHaveProperty('id', userId);
+      expect(transactions[i].user).toHaveProperty('name');
+      expect(transactions[i].user).toHaveProperty('balance');
+      expect(transactions[i].user).toHaveProperty('createdAt');
+      expect(transactions[i].user).toHaveProperty('updatedAt');
+      expect(transactions[i]).toHaveProperty('fromId');
+      expect(transactions[i].from).toHaveProperty('id');
+      expect(transactions[i].from).toHaveProperty('name');
+      expect(transactions[i].from).toHaveProperty('balance');
+      expect(transactions[i].from).toHaveProperty('createdAt');
+      expect(transactions[i].from).toHaveProperty('updatedAt');
+      expect(transactions[i]).toHaveProperty('toId');
+      expect(transactions[i].to).toHaveProperty('id');
+      expect(transactions[i].to).toHaveProperty('name');
+      expect(transactions[i].to).toHaveProperty('balance');
+      expect(transactions[i].to).toHaveProperty('createdAt');
+      expect(transactions[i].to).toHaveProperty('updatedAt');
+      expect(transactions[i]).toHaveProperty('createdAt');
+      expect(transactions[i]).toHaveProperty('updatedAt');
+
+      expect(response.body).toHaveProperty('meta');
+      expect(response.body.meta).toHaveProperty('page', DEFAULT_PAGE);
+      expect(response.body.meta).toHaveProperty('perPage', DEFAULT_PER_PAGE);
+      expect(response.body.meta).toHaveProperty('total', userTransactions.length);
+    }
+  });
+
+  test('get not exist transactions list, GET /api/transactions', async () => {
+    const userId = 1;
+    const anotherUserId = 2;
+    const transactionsData = [
+      {type: TYPE.TRANSFER, amount: 100, userId: userId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 100, userId: anotherUserId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 200, userId: userId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 200, userId: anotherUserId, fromId: userId, toId: anotherUserId},
+    ];
+
+    await prismaClient.transaction.createMany({ data: transactionsData });
+
+    const queryData = {userId, timeFrom: '2100-01-01T00:00:00.000Z'};
+    const response = await request(testingServer)
+      .get('/api/transactions')
+      .query(queryData);
+
+    expect(response.status).toStrictEqual(200);
+    expect(response.body).toHaveProperty('data');
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.data).toStrictEqual([]);
+    expect(response.body).toHaveProperty('meta');
+    expect(response.body.meta).toHaveProperty('page', DEFAULT_PAGE);
+    expect(response.body.meta).toHaveProperty('perPage', DEFAULT_PER_PAGE);
+    expect(response.body.meta).toHaveProperty('total', 0);
   });
 });

@@ -1,9 +1,10 @@
 const { z } = require('zod')
-const { ok, internalServerError, notFound, unprocessableEntity, badRequest } = require('../utils/responses')
-const { deposit, getTransactionById, withdraw, transfer, getTypeLabel } = require('../models/transaction')
+const { ok, internalServerError, unprocessableEntity, badRequest, okWithMeta } = require('../utils/responses')
+const { deposit, getTransactionById, withdraw, transfer, getTypeLabel, getTransactionsList, getTransactionsCount } = require('../models/transaction')
 const { TYPE } = require('../models/transaction')
 const { getUserById } = require('../models/user')
 const InsufficientBalanceError = require('../errors/InsufficientBalanceError')
+const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require('../models/transaction')
 
 const store = async (req, res) => {
   try {
@@ -65,4 +66,40 @@ const store = async (req, res) => {
   }
 }
 
-module.exports = { store }
+const index = async (req, res) => {
+  try {
+    z.object({
+      userId: z.preprocess((x) => Number(x), z.number().int().min(1)),
+      timeFrom: z.optional(z.string().datetime()),
+      timeTo: z.optional(z.string().datetime()),
+      page: z.optional(z.preprocess((x) => Number(x), z.number().int().min(1))),
+      perPage: z.optional(z.preprocess((x) => Number(x), z.number().int().min(1))),
+    }).parse(req.query);
+
+    const userId = Number(req.query.userId);
+    const page = Number(req.query.page ?? DEFAULT_PAGE);
+    const perPage = Number(req.query.perPage ?? DEFAULT_PER_PAGE);
+    const createdAt = {
+      ...(req.query.timeFrom && {gte: req.query.timeFrom}),
+      ...(req.query.timeTo && {lte: req.query.timeTo})
+    };
+
+    const query = { userId, createdAt};
+    const metaCondition = { page, perPage };
+
+    const transactionsData = await getTransactionsList(query, metaCondition);
+    const transactionsCount = await getTransactionsCount(query);
+
+    return okWithMeta(res, transactionsData, { page, perPage, total: transactionsCount });
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof z.ZodError) {
+      return unprocessableEntity(res, error.errors)
+    }
+
+    return internalServerError(res);
+  }
+}
+
+module.exports = { store, index }

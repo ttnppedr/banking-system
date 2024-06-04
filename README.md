@@ -212,3 +212,74 @@
   }
 }
 ```
+
+#### GET /api/transactions?perPage=:perPage&page=:page&userId=:userId&timeFrom=:timeFrom&timeTo=:timeTo
+- Get transaction list
+- Request query:
+    - perPage: number of data per page
+    - page: current page number
+    - userId: filter by userId (required)
+    - timeFrom: filter by createdAt start from (ISO 8601)
+    - timeTo: filter by createdAt end with (ISO 8601)
+- Response body: 
+```
+{
+  "data": [
+    {
+      "id": number,
+      "type": number,
+      "userId": number,
+      "fromId": null,
+      "toId": null,
+      "amount": number,
+      "createdAt": string,
+      "updatedAt": string,
+      "user": {
+        "id": number,
+        "name": string,
+        "balance": number,
+        "createdAt": string,
+        "updatedAt": string
+      },
+      "from": null,
+      "to": null
+    }, 
+    {
+      "id": number,
+      "type": number,
+      "userId": number,
+      "fromId": null,
+      "toId": null,
+      "amount": number,
+      "createdAt": string,
+      "updatedAt": string,
+      "user": {
+        "id": number,
+        "name": string,
+        "balance": number,
+        "createdAt": string,
+        "updatedAt": string
+      },
+      "from": {
+        "id": number,
+        "name": string,
+        "balance": number,
+        "createdAt": string,
+        "updatedAt": string
+      },
+      "to": {
+        "id": number,
+        "name": string,
+        "balance": number,
+        "createdAt": string,
+        "updatedAt": string
+      },
+    }
+  ],
+  "meta": {
+    "total": number,
+    "perPage": number,
+    "page": number
+  }
+}
+```
