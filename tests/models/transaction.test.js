@@ -1,7 +1,9 @@
 const { execSync } = require('child_process');
 const { getUserById } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
-const { deposit, getTransactionById, withdraw, transfer, getTypeLabel, TYPE_LABEL, getTransactionsList } = require('../../models/transaction')
+const { deposit, getTransactionById, withdraw, transfer, getTypeLabel, TYPE_LABEL, getTransactionsList,
+  getTransactionsCount
+} = require('../../models/transaction')
 const { TYPE } = require('../../models/transaction')
 const InsufficientBalanceError = require('../../errors/InsufficientBalanceError')
 
@@ -160,4 +162,18 @@ describe('Test transaction model', () => {
     }
   });
 
+  test('get transactions count', async () => {
+    const transactionsData = [
+      {type: TYPE.DEPOSIT, amount: 100, userId: 1},
+      {type: TYPE.DEPOSIT, amount: 200, userId: 1},
+      {type: TYPE.WITHDRAW, amount: 100, userId: 1},
+      {type: TYPE.WITHDRAW, amount: 100, userId: 2}
+    ];
+
+    await prismaClient.transaction.createMany({ data: transactionsData });
+
+    const transactionsCount = await getTransactionsCount({ userId: 1 });
+
+    expect(transactionsCount).toStrictEqual(3);
+  });
 });

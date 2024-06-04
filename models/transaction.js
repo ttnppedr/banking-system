@@ -122,4 +122,10 @@ const getTransactionsList = async (query = {}, metaCondition = { perPage: DEFAUL
   });
 };
 
-module.exports = { deposit, getTransactionById, withdraw, transfer, getTypeLabel, getTransactionsList, TYPE, TYPE_LABEL };
+const getTransactionsCount = async (query = {}) => {
+  return await prismaClient.transaction.count({
+    where: query
+  });
+};
+
+module.exports = { deposit, getTransactionById, withdraw, transfer, getTypeLabel, getTransactionsList, getTransactionsCount, TYPE, TYPE_LABEL };
