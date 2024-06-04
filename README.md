@@ -22,14 +22,39 @@
 - [supertest](https://github.com/ladjs/supertest): testing http request
 
 ## Deploy steps
-1. Clone the repository `git clone git@github.com:ttnppedr/banking-system.git`
-2. Cd into the repository `cd banking-system`
-3. Build Docker image `docker build -t banking-system .`
-4. Run the Docker container 
-   - Start container first time : `docker run -d -p 3000:3000 -v .:/app -v /app/node_modules --name bank banking-system`
-   - Start container: `docker start bank`
-   - Stop container: `docker stop bank`
-5. Access the application at `http://localhost:3000`
+1. Clone the repository 
+```shell
+git clone git@github.com:ttnppedr/banking-system.git
+```
+2. Cd into the repository 
+```shell
+cd banking-system
+```
+3. Copy environment variable 
+```shell
+cp .env.example .env
+```
+4. Build Docker image 
+```shell
+docker build -t banking-system .
+```
+5. Start container first time :
+```shell
+docker run -d -p 3000:3000 -v .:/app -v /app/node_modules --name bank banking-system
+```
+6. Migrate DB schema
+```shell
+docker exec bank sh -c "npm run migrate:dev && npm run migrate:test"
+```
+7. YEAH! Access the application at `http://localhost:3000`
+8. Start container: 
+```shell
+docker start bank
+```
+9. Stop container: 
+```shell
+docker stop bank
+```
 
 ## Folder structure
 ```
@@ -63,8 +88,6 @@ tests
     responses.test.js
 utils
   responses.js
-src
-  node_modules
 ```
 
 ## DB schema
