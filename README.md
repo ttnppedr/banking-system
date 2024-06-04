@@ -58,36 +58,37 @@ docker stop bank
 
 ## Folder structure
 ```
-controllers
-  transaction-controller.js
-  user-controller.js
-errors
-  InsufficientBalanceError.js
-model
-  user.js
-  transaction.js
-prisma
-  migrations/
-  client.js
-  schema.prisma
-routes
-  api
-    index.js
-    transaction-routes.js
-    user-routes.js
-tests
-  apis
-    transaction.test.js
-    user.test.js
-  libs
-    server.js
-  models
-    transaction.test.js
-    user.test.js
-  utils
-    responses.test.js
-utils
-  responses.js
+.
+|-- controllers/
+|   |-- transaction-controller.js
+|   `-- user-controller.js
+|-- errors/
+|   `-- InsufficientBalanceError.js
+|-- models/
+|   |-- user.js
+|   `-- transaction.js
+|-- prisma/
+|   |-- migrations/
+|   |-- client.js
+|   `-- schema.prisma
+|-- routes/
+|   `-- api/
+|       |-- index.js
+|       |-- transaction-routes.js
+|       `-- user-routes.js
+|-- tests/
+|   |-- apis/
+|   |   |-- transaction.test.js
+|   |   `-- user.test.js
+|   |-- libs/
+|   |   `-- server.js
+|   |-- models/
+|   |   |-- transaction.test.js
+|   |   `-- user.test.js
+|   `-- utils/
+|       `-- responses.test.js
+`-- utils/
+    `-- responses.js
 ```
 
 ## DB schema
