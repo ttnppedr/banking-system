@@ -1,4 +1,25 @@
-# This is a simple banking system
+# A simple banking system
+
+## Sections
+- [Packages](#packages)
+- [Deploy steps](#deploy-steps)
+- [Folder structure](#folder-structure)
+- [DB schema](#db-schema)
+  - [User](#user)
+  - [Transaction](#transaction)
+- [API document](#api)
+  - [User](#user-api)
+  - [Transaction](#transaction-api)
+- [Improvement](#improvement)
+
+## Packages
+- [express](https://expressjs.com/): web framework
+- [prisma](https://www.prisma.io/): ORM
+- [zod](https://zod.dev/): schema validation
+- [dotenv-cli](https://github.com/entropitor/dotenv-cli): environment variable
+- [jest](https://jestjs.io/): testing
+- [node-mock-http](https://github.com/eugef/node-mocks-http): mock http request request
+- [supertest](https://github.com/ladjs/supertest): testing http request
 
 ## Deploy steps
 1. Clone the repository `git clone git@github.com:ttnppedr/banking-system.git`
@@ -10,8 +31,44 @@
    - Stop container: `docker stop bank`
 5. Access the application at `http://localhost:3000`
 
-## DB Schema
-- User
+## Folder structure
+```
+controllers
+  transaction-controller.js
+  user-controller.js
+errors
+  InsufficientBalanceError.js
+model
+  user.js
+  transaction.js
+prisma
+  migrations/
+  client.js
+  schema.prisma
+routes
+  api
+    index.js
+    transaction-routes.js
+    user-routes.js
+tests
+  apis
+    transaction.test.js
+    user.test.js
+  libs
+    server.js
+  models
+    transaction.test.js
+    user.test.js
+  utils
+    responses.test.js
+utils
+  responses.js
+src
+  node_modules
+```
+
+## DB schema
+### User
 
 | column_name | data_type | is_nullable |
 |-------------|-----------|-------------|
@@ -21,7 +78,7 @@
 | createdAt   | DATETIME  | NO          |
 | updatedAt   | DATETIME  | NO          |
 
-- Transaction
+### Transaction
 
 | column_name | data_type | is_nullable | memo                               |
 |-------------|-----------|-------------|------------------------------------|
@@ -31,7 +88,6 @@
 | fromId      | INTEGER   | YES         | userId if type=3                   |
 | toId        | INTEGER   | YES         | userId if type=3                   |
 | amount      | INTEGER   | NO          |                                    |
-| balance     | INTEGER   | NO          |                                    |
 | createdAt   | DATETIME  | NO          |                                    |
 | updatedAt   | DATETIME  | NO          |                                    |
 
@@ -40,6 +96,7 @@
 - 200 response has `data` key
 - 200 response for data list has `meta` key, which contains `total`, `perPage`, `page` keys. `total` is the total number of data, `perPage` is the number of data per page, `page` is the current page number.
 - Non-200 response has `errors` key which type is array. Each element in error array has `path` and `message` key. `path` is an array type and `message` is string type.
+
 ### User API
 #### POST /api/users
 - Create a user
@@ -147,6 +204,7 @@
 ```
 {
   "userId": number,
+  "toId": number, (required if type=TRANSFER)
   "amount": number,
   "type": string
 }
@@ -283,3 +341,10 @@
   }
 }
 ```
+
+## Improvement
+- Mock DB for testing for performance like in-memory mechanism. ex: [prismock](https://github.com/morintd/prismock) 
+- Use another DB instead of SQLite for better performance and more functions.
+- Migrate to TypeScript for better type checking.
+- Add logger for each request, response and errors.
+- Notify when server error happened.
