@@ -118,7 +118,12 @@ const getTransactionsList = async (query = {}, metaCondition = { perPage: DEFAUL
   return await prismaClient.transaction.findMany({
     take: perPage,
     skip: (page - 1) * perPage,
-    where: query
+    where: query,
+    include: {
+      user: true,
+      from: true,
+      to: true,
+    },
   });
 };
 
@@ -128,4 +133,4 @@ const getTransactionsCount = async (query = {}) => {
   });
 };
 
-module.exports = { deposit, getTransactionById, withdraw, transfer, getTypeLabel, getTransactionsList, getTransactionsCount, TYPE, TYPE_LABEL };
+module.exports = { deposit, getTransactionById, withdraw, transfer, getTypeLabel, getTransactionsList, getTransactionsCount, TYPE, TYPE_LABEL, DEFAULT_PAGE, DEFAULT_PER_PAGE };

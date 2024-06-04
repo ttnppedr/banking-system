@@ -157,6 +157,16 @@ describe('Test transaction model', () => {
       expect(transactions[i]).toHaveProperty('amount', transactionsData[i].amount);
       expect(transactions[i]).toHaveProperty('fromId', null);
       expect(transactions[i]).toHaveProperty('toId', null);
+      expect(transactions[i]).toHaveProperty('user');
+      expect(transactions[i].user).toHaveProperty('id', transactionsData[i].userId);
+      expect(transactions[i].user).toHaveProperty('name');
+      expect(transactions[i].user).toHaveProperty('balance');
+      expect(transactions[i].user).toHaveProperty('createdAt');
+      expect(transactions[i].user).toHaveProperty('updatedAt');
+      expect(transactions[i]).toHaveProperty('from');
+      expect(transactions[i].from).toBeNull();
+      expect(transactions[i]).toHaveProperty('to');
+      expect(transactions[i].from).toBeNull();
       expect(transactions[i]).toHaveProperty('createdAt');
       expect(transactions[i]).toHaveProperty('updatedAt');
     }
@@ -175,5 +185,44 @@ describe('Test transaction model', () => {
     const transactionsCount = await getTransactionsCount({ userId: 1 });
 
     expect(transactionsCount).toStrictEqual(3);
+  });
+
+  test('get transfer transactions', async () => {
+    const userId = 1;
+    const anotherUserId = 2;
+    const transactionsData = [
+      {type: TYPE.TRANSFER, amount: 100, userId: userId, fromId: userId, toId: anotherUserId},
+      {type: TYPE.TRANSFER, amount: 100, userId: anotherUserId, fromId: userId, toId: anotherUserId},
+    ];
+
+    await prismaClient.transaction.createMany({ data: transactionsData });
+
+    const transactions = await getTransactionsList({ userId });
+
+    expect(transactions).toHaveLength(1);
+    expect(transactions[0]).toHaveProperty('id');
+    expect(transactions[0]).toHaveProperty('userId', userId);
+    expect(transactions[0]).toHaveProperty('type', transactionsData[0].type);
+    expect(transactions[0]).toHaveProperty('amount', transactionsData[0].amount);
+    expect(transactions[0]).toHaveProperty('user');
+    expect(transactions[0].user).toHaveProperty('id', userId);
+    expect(transactions[0].user).toHaveProperty('name');
+    expect(transactions[0].user).toHaveProperty('balance');
+    expect(transactions[0].user).toHaveProperty('createdAt');
+    expect(transactions[0].user).toHaveProperty('updatedAt');
+    expect(transactions[0]).toHaveProperty('from');
+    expect(transactions[0].from).toHaveProperty('id', userId);
+    expect(transactions[0].from).toHaveProperty('name');
+    expect(transactions[0].from).toHaveProperty('balance');
+    expect(transactions[0].from).toHaveProperty('createdAt');
+    expect(transactions[0].from).toHaveProperty('updatedAt');
+    expect(transactions[0]).toHaveProperty('to');
+    expect(transactions[0].to).toHaveProperty('id', anotherUserId);
+    expect(transactions[0].to).toHaveProperty('name');
+    expect(transactions[0].to).toHaveProperty('balance');
+    expect(transactions[0].to).toHaveProperty('createdAt');
+    expect(transactions[0].to).toHaveProperty('updatedAt');
+    expect(transactions[0]).toHaveProperty('createdAt');
+    expect(transactions[0]).toHaveProperty('updatedAt');
   });
 });
