@@ -372,3 +372,5 @@ docker stop bank
 - Migrate to TypeScript for better type checking.
 - Add logger for each request, response and errors.
 - Notify when server error happened.
+- User soft delete.
+- Manually update user balance.
