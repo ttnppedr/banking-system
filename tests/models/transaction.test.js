@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 const { getUserById } = require('../../models/user')
 const prismaClient = require('../../prisma/client')
-const { deposit, getTransactionById, withdraw, transfer, getTypeLabel, TYPE_LABEL } = require('../../models/transaction')
+const { deposit, getTransactionById, withdraw, transfer, getTypeLabel, TYPE_LABEL, getTransactionsList } = require('../../models/transaction')
 const { TYPE } = require('../../models/transaction')
 const InsufficientBalanceError = require('../../errors/InsufficientBalanceError')
 
@@ -134,4 +134,30 @@ describe('Test transaction model', () => {
       expect(getTypeLabel(value)).toStrictEqual(TYPE_LABEL[value]);
     });
   });
+
+  test('get first page transactions', async () => {
+    const transactionsData = [
+      {type: TYPE.DEPOSIT, amount: 100, userId: 1},
+      {type: TYPE.DEPOSIT, amount: 200, userId: 1},
+      {type: TYPE.WITHDRAW, amount: 100, userId: 1},
+      {type: TYPE.WITHDRAW, amount: 100, userId: 1}
+    ];
+
+    await prismaClient.transaction.createMany({ data: transactionsData });
+
+    const transactions = await getTransactionsList({ userId: 1 }, {perPage: 3, page: 1});
+
+    expect(transactions).toHaveLength(3);
+    for (let i = 0; i < transactions.length - 1 ; i++) {
+      expect(transactions[i]).toHaveProperty('id');
+      expect(transactions[i]).toHaveProperty('userId', transactionsData[i].userId);
+      expect(transactions[i]).toHaveProperty('type', transactionsData[i].type);
+      expect(transactions[i]).toHaveProperty('amount', transactionsData[i].amount);
+      expect(transactions[i]).toHaveProperty('fromId', null);
+      expect(transactions[i]).toHaveProperty('toId', null);
+      expect(transactions[i]).toHaveProperty('createdAt');
+      expect(transactions[i]).toHaveProperty('updatedAt');
+    }
+  });
+
 });
